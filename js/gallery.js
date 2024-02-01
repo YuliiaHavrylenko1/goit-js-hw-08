@@ -64,23 +64,46 @@ const images = [
   },
 ];
 
-const galleryPage = document.querySelector('.gallery');
+const gallery = document.querySelector(".gallery");
+let lightbox;
+gallery.addEventListener("click", (event) => {
+  event.preventDefault();
+  if (event.target.classList.contains("gallery-image")) {
+    const originalSrc = event.target.dataset.source;
+    lightbox = basicLightbox.create(
+      `<img width="1400" height="900" src="${originalSrc}">`
+    );
+    lightbox.show();
+    document.addEventListener("keydown", handleKeyDown);
+  }
+});
 
-function galleryTemplates() {
-    const gallaryContent = images.map(({ preview, original, description }) => {
-        return `
-        <li class="gallery-item">
-        <a class="gallery-link" href="${original}">
-        <img
-            class="gallery-image"
-            src="${preview}"
-            data-source="${original}"
-            alt="${description}"
-            />
-        </a>
-        </li>`;
-    })
-        .join('\n\n');
-    
-    galleryPage.innerHTML = galleryContent;
+function handleKeyDown(event) {
+  if (event.key === "Escape" || event.code === "Escape") {
+    closeLightbox();
+  }
 }
+
+function closeLightbox() {
+  if (lightbox && lightbox.visible()) {
+    lightbox.close();
+    document.removeEventListener("keydown", handleKeyDown);
+  }
+}
+
+const markup = images
+  .map(
+    (image) => `<li class="gallery-item">
+  <a class="gallery-link" href="${image.original}">
+    <img
+      class="gallery-image"
+      src="${image.preview}"
+      data-source="${image.original}"
+      alt="${image.description}"
+    />
+  </a>
+</li>`
+  )
+  .join("");
+
+gallery.innerHTML = markup;
